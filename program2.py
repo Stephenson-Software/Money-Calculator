@@ -4,9 +4,10 @@ print("")
 hourlywage = float(input("How much do you make per hour before taxes? (Format: 8.31, 14) $"))
 workweek = float(input("How many hours do you work in a week? (Format: 17.56, 40) "))
 taxestakenoutpercentnumber = float(input("How much percent of your paycheck is taken out for taxes? (Format: 10, 20, 30, etc) "))
-taxestakenout = taxestakenoutpercentnumber / 10
+taxestakenout = taxestakenoutpercentnumber / 100
+takehomefraction = 1 - taxestakenout
 
-hourlywageaftertaxes = hourlywage * taxestakenout
+hourlywageaftertaxes = hourlywage * takehomefraction
 moneyperweek = hourlywageaftertaxes * workweek
 moneypermonth = moneyperweek * 4
 moneyperyear = moneypermonth * 12
