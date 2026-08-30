@@ -1,0 +1,69 @@
+# Money Calculator
+
+A Python program that calculates how much you make in a week, a month, and a year after taxes.
+
+## Requirements
+
+- Python 3 (no third-party packages are needed)
+
+## Running
+
+```bash
+python3 program2.py
+```
+
+## Prompts
+
+Three values are asked for, in this order. Each is entered as a bare number.
+
+| Order | Prompt | Example answer | Meaning |
+|-------|--------|----------------|---------|
+| 1 | `How much do you make per hour before taxes?` | `15` | Gross hourly wage, in dollars |
+| 2 | `How many hours do you work in a week?` | `40` | Hours worked per week |
+| 3 | `How much percent of your paycheck is taken out for taxes?` | `20` | Tax percentage, as a plain number — `20`, not `0.20` or `20%` |
+
+The program then prints the three figures and waits on a final `Press Enter to exit the program.` prompt, so it does not close on its own.
+
+## Example
+
+```
+You will be asked several questions regarding your financial situation.
+
+How much do you make per hour before taxes? (Format: 8.31, 14) $15
+How many hours do you work in a week? (Format: 17.56, 40) 40
+How much percent of your paycheck is taken out for taxes? (Format: 10, 20, 30, etc) 20
+
+In a week, you will make $480 after taxes.
+
+In a month, you will make $1920 after taxes.
+
+In a year, you will make $23040 after taxes.
+
+
+Press Enter to exit the program.
+```
+
+## How the figures are derived
+
+- Weekly pay is the hourly wage, less the given tax percentage, multiplied by the hours worked per week.
+- Monthly pay is four weeks of that.
+- Yearly pay is twelve of those months — that is, 48 weeks rather than 52.
+
+## Known limitations
+
+- Only after-tax figures are printed; no before-tax figure is shown ([#10](https://github.com/Stephenson-Software/Money-Calculator/issues/10)).
+- The printed figures are truncated to whole dollars, so cents are dropped ([#5](https://github.com/Stephenson-Software/Money-Calculator/issues/5)).
+- A year is treated as 48 weeks ([#4](https://github.com/Stephenson-Software/Money-Calculator/issues/4)).
+- Non-numeric answers end the program with a `ValueError` traceback ([#6](https://github.com/Stephenson-Software/Money-Calculator/issues/6)), and out-of-range answers such as a negative wage or a tax percentage above 100 are accepted without complaint ([#7](https://github.com/Stephenson-Software/Money-Calculator/issues/7)).
+
+## Tests
+
+The arithmetic is covered by [pytest](https://docs.pytest.org/) tests in `tests/`:
+
+```bash
+python3 -m pytest
+```
+
+## License
+
+Licensed under the Stephenson Software Non-Commercial License (Stephenson-NC) — non-commercial use only. See [LICENSE](LICENSE).
