@@ -18,9 +18,11 @@ Three values are asked for, in this order. Each is entered as a bare number.
 
 | Order | Prompt | Example answer | Meaning |
 |-------|--------|----------------|---------|
-| 1 | `How much do you make per hour before taxes?` | `15` | Gross hourly wage, in dollars |
-| 2 | `How many hours do you work in a week?` | `40` | Hours worked per week |
-| 3 | `How much percent of your paycheck is taken out for taxes?` | `20` | Tax percentage, as a plain number — `20`, not `0.20` or `20%` |
+| 1 | `How much do you make per hour before taxes?` | `15` | Gross hourly wage, in dollars — `0` or more |
+| 2 | `How many hours do you work in a week?` | `40` | Hours worked per week — `0` to `168` |
+| 3 | `How much percent of your paycheck is taken out for taxes?` | `20` | Tax percentage, as a plain number — `20`, not `0.20` or `20%` — `0` to `100` |
+
+An answer that is not a number (such as `abc`, `$15`, or `20%`) or that falls outside the range shown is refused with a short message, and the same question is asked again.
 
 The program then prints the three figures and waits on a final `Press Enter to exit the program.` prompt, so it does not close on its own.
 
@@ -54,7 +56,6 @@ Press Enter to exit the program.
 - Only after-tax figures are printed; no before-tax figure is shown ([#10](https://github.com/Stephenson-Software/Money-Calculator/issues/10)).
 - The printed figures are truncated to whole dollars, so cents are dropped ([#5](https://github.com/Stephenson-Software/Money-Calculator/issues/5)).
 - A year is treated as 48 weeks ([#4](https://github.com/Stephenson-Software/Money-Calculator/issues/4)).
-- Non-numeric answers end the program with a `ValueError` traceback ([#6](https://github.com/Stephenson-Software/Money-Calculator/issues/6)), and out-of-range answers such as a negative wage or a tax percentage above 100 are accepted without complaint ([#7](https://github.com/Stephenson-Software/Money-Calculator/issues/7)).
 
 ## Tests
 

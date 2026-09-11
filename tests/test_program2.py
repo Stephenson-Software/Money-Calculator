@@ -58,6 +58,72 @@ def test_fractional_wages_and_hours_are_not_rounded():
     assert week == pytest.approx(131.33124)
 
 
+def feed_answers(monkeypatch, answers):
+    """Make input() return the given answers in order, recording each prompt shown."""
+    answers = iter(answers)
+    prompts = []
+
+    def fake_input(prompt=""):
+        prompts.append(prompt)
+        return next(answers)
+
+    monkeypatch.setattr("builtins.input", fake_input)
+    return prompts
+
+
+def test_ask_for_number_returns_the_parsed_answer(monkeypatch):
+    feed_answers(monkeypatch, ["8.31"])
+    assert program2.ask_for_number("wage? ") == pytest.approx(8.31)
+
+
+def test_ask_for_number_reprompts_until_the_answer_is_numeric(monkeypatch, capsys):
+    prompts = feed_answers(monkeypatch, ["abc", "$15", "20%", "", "15"])
+    assert program2.ask_for_number("wage? ") == pytest.approx(15.0)
+    assert prompts == ["wage? "] * 5
+    assert capsys.readouterr().out.count("That is not a number. Please try again.") == 4
+
+
+def test_ask_for_number_treats_nan_and_inf_as_not_a_number(monkeypatch, capsys):
+    feed_answers(monkeypatch, ["nan", "inf", "-inf", "1"])
+    assert program2.ask_for_number("hours? ", lowest=0) == pytest.approx(1.0)
+    assert capsys.readouterr().out.count("That is not a number.") == 3
+
+
+def test_ask_for_number_rejects_answers_below_the_lowest_bound(monkeypatch, capsys):
+    feed_answers(monkeypatch, ["-15", "0"])
+    assert program2.ask_for_number("wage? ", lowest=0) == pytest.approx(0.0)
+    assert "That is too low. Please enter a number of at least 0." in capsys.readouterr().out
+
+
+def test_ask_for_number_rejects_answers_above_the_highest_bound(monkeypatch, capsys):
+    feed_answers(monkeypatch, ["150", "100"])
+    assert program2.ask_for_number("tax? ", lowest=0, highest=100) == pytest.approx(100.0)
+    assert "That is too high. Please enter a number of at most 100." in capsys.readouterr().out
+
+
+def test_ask_for_number_has_no_bounds_by_default(monkeypatch):
+    feed_answers(monkeypatch, ["-1000000"])
+    assert program2.ask_for_number("anything? ") == pytest.approx(-1000000.0)
+
+
+def test_main_reasks_on_bad_answers_and_still_prints_the_figures(monkeypatch, capsys):
+    # Each prompt gets one bad answer before the good one: a non-number for the
+    # wage, more hours than a week has, and a tax percentage above 100.
+    prompts = feed_answers(monkeypatch, ["abc", "15", "500", "40", "150", "20", ""])
+    program2.main()
+
+    assert len(prompts) == 7
+    assert prompts[0] == prompts[1]
+    assert prompts[2] == prompts[3]
+    assert prompts[4] == prompts[5]
+
+    output = capsys.readouterr().out
+    assert "That is not a number. Please try again." in output
+    assert "That is too high. Please enter a number of at most 168." in output
+    assert "That is too high. Please enter a number of at most 100." in output
+    assert "In a week, you will make $480 after taxes." in output
+
+
 def test_main_prompts_in_order_and_prints_the_three_figures(monkeypatch, capsys):
     answers = iter(["15", "40", "20", ""])
     prompts = []
