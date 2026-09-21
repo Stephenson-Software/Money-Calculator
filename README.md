@@ -26,6 +26,8 @@ An answer that is not a number (such as `abc`, `$15`, or `20%`) or that falls ou
 
 The program then prints the three figures and waits on a final `Press Enter to exit the program.` prompt, so it does not close on its own.
 
+If the input is closed at any prompt instead — by pressing Ctrl-D, or because piped-in answers ran out — the program stops with the message `No answer was given, so the program is exiting.` and a non-zero exit status.
+
 ## Example
 
 ```

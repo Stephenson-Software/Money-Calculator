@@ -39,7 +39,7 @@ def ask_for_number(prompt, lowest=None, highest=None):
             return value
 
 
-def main():
+def ask_questions_and_print_figures():
     print("You will be asked several questions regarding your financial situation.")
     print("")
 
@@ -60,6 +60,21 @@ def main():
     print("")
 
     input("\nPress Enter to exit the program.")
+
+
+def main():
+    """Run the program, ending cleanly if the input is closed at any prompt.
+
+    Pressing Ctrl-D, or piping in answers that run out early, makes input()
+    raise EOFError. Since no answer exists, re-asking cannot help, so the
+    program stops with a short message and a non-zero exit status instead of
+    a traceback.
+    """
+    try:
+        ask_questions_and_print_figures()
+    except EOFError:
+        print("")
+        raise SystemExit("No answer was given, so the program is exiting.")
 
 
 if __name__ == "__main__":

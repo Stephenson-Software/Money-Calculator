@@ -59,13 +59,20 @@ def test_fractional_wages_and_hours_are_not_rounded():
 
 
 def feed_answers(monkeypatch, answers):
-    """Make input() return the given answers in order, recording each prompt shown."""
+    """Make input() return the given answers in order, recording each prompt shown.
+
+    Once the answers run out, input() raises EOFError, just as it does when
+    standard input is closed.
+    """
     answers = iter(answers)
     prompts = []
 
     def fake_input(prompt=""):
         prompts.append(prompt)
-        return next(answers)
+        try:
+            return next(answers)
+        except StopIteration:
+            raise EOFError("EOF when reading a line") from None
 
     monkeypatch.setattr("builtins.input", fake_input)
     return prompts
@@ -122,6 +129,34 @@ def test_main_reasks_on_bad_answers_and_still_prints_the_figures(monkeypatch, ca
     assert "That is too high. Please enter a number of at most 168." in output
     assert "That is too high. Please enter a number of at most 100." in output
     assert "In a week, you will make $480 after taxes." in output
+
+
+def test_main_exits_with_a_message_when_input_is_closed_at_a_prompt(monkeypatch, capsys):
+    # The wage is answered, then the input is closed while the hours are
+    # being asked for (issue #16).
+    prompts = feed_answers(monkeypatch, ["15"])
+
+    with pytest.raises(SystemExit) as exit_info:
+        program2.main()
+
+    assert exit_info.value.code == "No answer was given, so the program is exiting."
+    assert len(prompts) == 2
+    assert "in a week" in prompts[1]
+    assert "In a week, you will make" not in capsys.readouterr().out
+
+
+def test_main_exits_with_a_message_when_input_is_closed_at_the_final_prompt(monkeypatch, capsys):
+    # All three answers are given, but the input is closed before the
+    # "Press Enter to exit" prompt is answered.
+    prompts = feed_answers(monkeypatch, ["15", "40", "20"])
+
+    with pytest.raises(SystemExit) as exit_info:
+        program2.main()
+
+    assert exit_info.value.code == "No answer was given, so the program is exiting."
+    assert len(prompts) == 4
+    assert "Press Enter to exit" in prompts[3]
+    assert "In a year, you will make $23040 after taxes." in capsys.readouterr().out
 
 
 def test_main_prompts_in_order_and_prints_the_three_figures(monkeypatch, capsys):
