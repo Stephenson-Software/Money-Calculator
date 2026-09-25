@@ -1,6 +1,6 @@
 # Money Calculator
 
-A Python program that calculates how much you make in a week, a month, and a year after taxes.
+A Python program that calculates how much you make in a week, a month, and a year, before and after taxes.
 
 ## Requirements
 
@@ -37,11 +37,11 @@ How much do you make per hour before taxes? (Format: 8.31, 14) $15
 How many hours do you work in a week? (Format: 17.56, 40) 40
 How much percent of your paycheck is taken out for taxes? (Format: 10, 20, 30, etc) 20
 
-In a week, you will make $480 after taxes.
+In a week, you will make $600 before taxes and $480 after taxes.
 
-In a month, you will make $1920 after taxes.
+In a month, you will make $2400 before taxes and $1920 after taxes.
 
-In a year, you will make $23040 after taxes.
+In a year, you will make $28800 before taxes and $23040 after taxes.
 
 
 Press Enter to exit the program.
@@ -49,13 +49,13 @@ Press Enter to exit the program.
 
 ## How the figures are derived
 
-- Weekly pay is the hourly wage, less the given tax percentage, multiplied by the hours worked per week.
+- Weekly pay before taxes is the hourly wage multiplied by the hours worked per week.
+- Weekly pay after taxes is the hourly wage, less the given tax percentage, multiplied by the hours worked per week.
 - Monthly pay is four weeks of that.
 - Yearly pay is twelve of those months — that is, 48 weeks rather than 52.
 
 ## Known limitations
 
-- Only after-tax figures are printed; no before-tax figure is shown ([#10](https://github.com/Stephenson-Software/Money-Calculator/issues/10)).
 - The printed figures are truncated to whole dollars, so cents are dropped ([#5](https://github.com/Stephenson-Software/Money-Calculator/issues/5)).
 - A year is treated as 48 weeks ([#4](https://github.com/Stephenson-Software/Money-Calculator/issues/4)).
 

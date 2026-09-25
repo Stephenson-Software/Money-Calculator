@@ -18,6 +18,14 @@ def calculate_take_home(hourly_wage, hours_per_week, tax_percent):
     return money_per_week, money_per_month, money_per_year
 
 
+def calculate_before_taxes(hourly_wage, hours_per_week):
+    """Return pre-tax pay as (per week, per month, per year).
+
+    The periods are the same as in calculate_take_home, with nothing taken out.
+    """
+    return calculate_take_home(hourly_wage, hours_per_week, 0)
+
+
 def ask_for_number(prompt, lowest=None, highest=None):
     """Keep asking until the answer is a number, optionally within the given bounds.
 
@@ -47,16 +55,17 @@ def ask_questions_and_print_figures():
     workweek = ask_for_number("How many hours do you work in a week? (Format: 17.56, 40) ", lowest=0, highest=168)
     taxestakenoutpercentnumber = ask_for_number("How much percent of your paycheck is taken out for taxes? (Format: 10, 20, 30, etc) ", lowest=0, highest=100)
 
+    grossperweek, grosspermonth, grossperyear = calculate_before_taxes(hourlywage, workweek)
     moneyperweek, moneypermonth, moneyperyear = calculate_take_home(
         hourlywage, workweek, taxestakenoutpercentnumber
     )
 
     print("")
-    print("In a week, you will make $%d after taxes." % moneyperweek)
+    print("In a week, you will make $%d before taxes and $%d after taxes." % (grossperweek, moneyperweek))
     print("")
-    print("In a month, you will make $%d after taxes." % moneypermonth)
+    print("In a month, you will make $%d before taxes and $%d after taxes." % (grosspermonth, moneypermonth))
     print("")
-    print("In a year, you will make $%d after taxes." % moneyperyear)
+    print("In a year, you will make $%d before taxes and $%d after taxes." % (grossperyear, moneyperyear))
     print("")
 
     input("\nPress Enter to exit the program.")

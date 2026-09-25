@@ -58,6 +58,14 @@ def test_fractional_wages_and_hours_are_not_rounded():
     assert week == pytest.approx(131.33124)
 
 
+def test_before_taxes_is_the_wage_times_the_hours_over_the_same_periods():
+    assert program2.calculate_before_taxes(15, 40) == pytest.approx((600.0, 2400.0, 28800.0))
+
+
+def test_before_taxes_matches_take_home_at_zero_percent_tax():
+    assert program2.calculate_before_taxes(20, 40) == pytest.approx(program2.calculate_take_home(20, 40, 0))
+
+
 def feed_answers(monkeypatch, answers):
     """Make input() return the given answers in order, recording each prompt shown.
 
@@ -128,7 +136,7 @@ def test_main_reasks_on_bad_answers_and_still_prints_the_figures(monkeypatch, ca
     assert "That is not a number. Please try again." in output
     assert "That is too high. Please enter a number of at most 168." in output
     assert "That is too high. Please enter a number of at most 100." in output
-    assert "In a week, you will make $480 after taxes." in output
+    assert "In a week, you will make $600 before taxes and $480 after taxes." in output
 
 
 def test_main_exits_with_a_message_when_input_is_closed_at_a_prompt(monkeypatch, capsys):
@@ -156,7 +164,7 @@ def test_main_exits_with_a_message_when_input_is_closed_at_the_final_prompt(monk
     assert exit_info.value.code == "No answer was given, so the program is exiting."
     assert len(prompts) == 4
     assert "Press Enter to exit" in prompts[3]
-    assert "In a year, you will make $23040 after taxes." in capsys.readouterr().out
+    assert "In a year, you will make $28800 before taxes and $23040 after taxes." in capsys.readouterr().out
 
 
 def test_main_prompts_in_order_and_prints_the_three_figures(monkeypatch, capsys):
@@ -175,9 +183,9 @@ def test_main_prompts_in_order_and_prints_the_three_figures(monkeypatch, capsys)
     assert "percent" in prompts[2]
 
     output = capsys.readouterr().out
-    assert "In a week, you will make $480 after taxes." in output
-    assert "In a month, you will make $1920 after taxes." in output
-    assert "In a year, you will make $23040 after taxes." in output
+    assert "In a week, you will make $600 before taxes and $480 after taxes." in output
+    assert "In a month, you will make $2400 before taxes and $1920 after taxes." in output
+    assert "In a year, you will make $28800 before taxes and $23040 after taxes." in output
 
 
 def test_printed_figures_drop_the_cents(monkeypatch, capsys):
@@ -186,4 +194,5 @@ def test_printed_figures_drop_the_cents(monkeypatch, capsys):
     monkeypatch.setattr("builtins.input", lambda prompt="": next(answers))
     program2.main()
 
-    assert "In a week, you will make $131 after taxes." in capsys.readouterr().out
+    # 8.31 * 17.56 = 145.9236 before taxes, 131.33124 after; both lose the cents.
+    assert "In a week, you will make $145 before taxes and $131 after taxes." in capsys.readouterr().out
