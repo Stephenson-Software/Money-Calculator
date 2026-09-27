@@ -67,6 +67,8 @@ The arithmetic is covered by [pytest](https://docs.pytest.org/) tests in `tests/
 python3 -m pytest
 ```
 
+The same tests, a byte-compile of `program2.py`, and a run of the program with the example answers above are run by GitHub Actions on every push to `master` and every pull request (`.github/workflows/test.yml`).
+
 ## License
 
 Licensed under the Stephenson Software Non-Commercial License (Stephenson-NC) — non-commercial use only. See [LICENSE](LICENSE).

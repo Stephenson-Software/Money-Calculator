@@ -1,0 +1,30 @@
+name: Test
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pytest
+        run: python -m pip install pytest
+
+      - name: Byte-compile
+        run: python -m py_compile program2.py
+
+      - name: Run tests
+        run: python -m pytest -q
+
+      - name: Smoke run
+        run: |
+          printf '15\n40\n20\n\n' | python program2.py | tee smoke-output.txt
+          grep -F 'In a week, you will make $600 before taxes and $480 after taxes.' smoke-output.txt
