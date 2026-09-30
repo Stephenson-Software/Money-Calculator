@@ -139,6 +139,30 @@ def test_main_reasks_on_bad_answers_and_still_prints_the_figures(monkeypatch, ca
     assert "In a week, you will make $600 before taxes and $480 after taxes." in output
 
 
+def test_main_reasks_all_three_questions_when_the_figures_are_too_large(monkeypatch, capsys):
+    # 1e307 * 40 = 4e308 is past the largest float, so the figures would be
+    # infinite (issue #21).
+    prompts = feed_answers(monkeypatch, ["1e307", "40", "20", "15", "40", "20", ""])
+    program2.main()
+
+    assert len(prompts) == 7
+    assert prompts[0:3] == prompts[3:6]
+
+    output = capsys.readouterr().out
+    assert "Those answers give figures too large to calculate. Please try again." in output
+    assert "In a week, you will make $600 before taxes and $480 after taxes." in output
+
+
+def test_main_reasks_when_only_the_yearly_figure_is_too_large(monkeypatch, capsys):
+    # 3e304 * 168 is still finite for a week, but 48 such weeks are not.
+    feed_answers(monkeypatch, ["3e304", "168", "0", "15", "40", "20", ""])
+    program2.main()
+
+    output = capsys.readouterr().out
+    assert "Those answers give figures too large to calculate." in output
+    assert "In a year, you will make $28800 before taxes and $23040 after taxes." in output
+
+
 def test_main_exits_with_a_message_when_input_is_closed_at_a_prompt(monkeypatch, capsys):
     # The wage is answered, then the input is closed while the hours are
     # being asked for (issue #16).

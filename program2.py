@@ -51,11 +51,19 @@ def ask_questions_and_print_figures():
     print("You will be asked several questions regarding your financial situation.")
     print("")
 
-    hourlywage = ask_for_number("How much do you make per hour before taxes? (Format: 8.31, 14) $", lowest=0)
-    workweek = ask_for_number("How many hours do you work in a week? (Format: 17.56, 40) ", lowest=0, highest=168)
-    taxestakenoutpercentnumber = ask_for_number("How much percent of your paycheck is taken out for taxes? (Format: 10, 20, 30, etc) ", lowest=0, highest=100)
+    while True:
+        hourlywage = ask_for_number("How much do you make per hour before taxes? (Format: 8.31, 14) $", lowest=0)
+        workweek = ask_for_number("How many hours do you work in a week? (Format: 17.56, 40) ", lowest=0, highest=168)
+        taxestakenoutpercentnumber = ask_for_number("How much percent of your paycheck is taken out for taxes? (Format: 10, 20, 30, etc) ", lowest=0, highest=100)
 
-    grossperweek, grosspermonth, grossperyear = calculate_before_taxes(hourlywage, workweek)
+        grossperweek, grosspermonth, grossperyear = calculate_before_taxes(hourlywage, workweek)
+        # The yearly figure before taxes is the largest one, so if it is
+        # finite, every other figure is too.
+        if math.isfinite(grossperyear):
+            break
+        print("Those answers give figures too large to calculate. Please try again.")
+        print("")
+
     moneyperweek, moneypermonth, moneyperyear = calculate_take_home(
         hourlywage, workweek, taxestakenoutpercentnumber
     )
