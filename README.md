@@ -24,7 +24,7 @@ Three values are asked for, in this order. Each is entered as a bare number.
 
 An answer that is not a number (such as `abc`, `$15`, or `20%`) or that falls outside the range shown is refused with a short message, and the same question is asked again. If the answers are accepted but give figures too large to calculate (such as an hourly wage of `1e307`), the message `Those answers give figures too large to calculate. Please try again.` is shown and all three questions are asked again.
 
-The program then prints the three figures and waits on a final `Press Enter to exit the program.` prompt, so it does not close on its own.
+The program then prints three lines — one each for a week, a month, and a year — each giving the pay before taxes and after taxes, and waits on a final `Press Enter to exit the program.` prompt, so it does not close on its own.
 
 If the input is closed at any prompt instead — by pressing Ctrl-D, or because piped-in answers ran out — the program stops with the message `No answer was given, so the program is exiting.` and a non-zero exit status.
 
@@ -61,9 +61,10 @@ Press Enter to exit the program.
 
 ## Tests
 
-The arithmetic is covered by [pytest](https://docs.pytest.org/) tests in `tests/`:
+The arithmetic is covered by [pytest](https://docs.pytest.org/) tests in `tests/`. Running the program needs no third-party packages, but running the tests needs pytest installed:
 
 ```bash
+python3 -m pip install pytest
 python3 -m pytest
 ```
 
