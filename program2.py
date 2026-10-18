@@ -80,18 +80,22 @@ def ask_questions_and_print_figures():
 
 
 def main():
-    """Run the program, ending cleanly if the input is closed at any prompt.
+    """Run the program, ending cleanly if the input is closed or interrupted.
 
     Pressing Ctrl-D, or piping in answers that run out early, makes input()
     raise EOFError. Since no answer exists, re-asking cannot help, so the
     program stops with a short message and a non-zero exit status instead of
-    a traceback.
+    a traceback. Pressing Ctrl-C raises KeyboardInterrupt, which is handled
+    the same way.
     """
     try:
         ask_questions_and_print_figures()
     except EOFError:
         print("")
         raise SystemExit("No answer was given, so the program is exiting.")
+    except KeyboardInterrupt:
+        print("")
+        raise SystemExit("The program was interrupted, so it is exiting.")
 
 
 if __name__ == "__main__":
