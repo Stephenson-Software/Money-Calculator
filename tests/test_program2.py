@@ -191,6 +191,29 @@ def test_main_exits_with_a_message_when_input_is_closed_at_the_final_prompt(monk
     assert "In a year, you will make $28800 before taxes and $23040 after taxes." in capsys.readouterr().out
 
 
+def test_main_exits_with_a_message_when_interrupted_at_a_prompt(monkeypatch, capsys):
+    # The wage is answered, then Ctrl-C is pressed while the hours are being
+    # asked for (issue #24).
+    answers = iter(["15"])
+    prompts = []
+
+    def fake_input(prompt=""):
+        prompts.append(prompt)
+        try:
+            return next(answers)
+        except StopIteration:
+            raise KeyboardInterrupt from None
+
+    monkeypatch.setattr("builtins.input", fake_input)
+
+    with pytest.raises(SystemExit) as exit_info:
+        program2.main()
+
+    assert exit_info.value.code == "The program was interrupted, so it is exiting."
+    assert len(prompts) == 2
+    assert "In a week, you will make" not in capsys.readouterr().out
+
+
 def test_main_prompts_in_order_and_prints_the_three_figures(monkeypatch, capsys):
     answers = iter(["15", "40", "20", ""])
     prompts = []
