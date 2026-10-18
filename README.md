@@ -2,6 +2,10 @@
 
 A Python program that calculates how much you make in a week, a month, and a year, before and after taxes.
 
+![A real Money Calculator session for $15 an hour, 40 hours a week and 20% tax](docs/images/money-calculator.gif)
+
+*A real session: $15 an hour, 40 hours a week, 20% tax.*
+
 ## Requirements
 
 - Python 3 (no third-party packages are needed)
@@ -69,6 +73,10 @@ python3 -m pytest
 ```
 
 The same tests, a byte-compile of `program2.py`, and a run of the program with the example answers above are run by GitHub Actions on every push to `master` and every pull request (`.github/workflows/test.yml`).
+
+## How the screenshot was captured
+
+`docs/images/money-calculator.gif` was recorded on 2026-10-18 from a real run of `python3 program2.py` (Python 3.12) with the example answers `15`, `40` and `20`. The program was started in a pseudo-terminal, the input shown was typed into it by a script, and the recorded terminal output was rendered to an image with [pyte](https://github.com/selectel/pyte) and [Pillow](https://python-pillow.org/). Nothing in the output was edited; only the window frame was added.
 
 ## License
 
