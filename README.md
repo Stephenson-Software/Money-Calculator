@@ -54,7 +54,7 @@ Press Enter to exit the program.
 ## How the figures are derived
 
 - Weekly pay before taxes is the hourly wage multiplied by the hours worked per week.
-- Weekly pay after taxes is the hourly wage, less the given tax percentage, multiplied by the hours worked per week.
+- Weekly pay after taxes is the weekly pay before taxes, less the given tax percentage.
 - Monthly pay, before or after taxes, is four weeks of the matching weekly figure.
 - Yearly pay is twelve of those months — that is, 48 weeks rather than 52.
 
