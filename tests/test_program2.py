@@ -10,18 +10,6 @@ import pytest
 import program2
 
 
-def test_take_home_fraction_converts_percent_to_a_fraction():
-    assert program2.take_home_fraction(20) == pytest.approx(0.8)
-
-
-def test_take_home_fraction_keeps_everything_at_zero_percent():
-    assert program2.take_home_fraction(0) == pytest.approx(1.0)
-
-
-def test_take_home_fraction_keeps_nothing_at_one_hundred_percent():
-    assert program2.take_home_fraction(100) == pytest.approx(0.0)
-
-
 def test_weekly_pay_is_the_kept_share_of_the_wage_times_the_hours():
     week, _, _ = program2.calculate_take_home(15, 40, 20)
     assert week == pytest.approx(480.0)
@@ -56,6 +44,12 @@ def test_zero_hours_earn_nothing():
 def test_fractional_wages_and_hours_are_not_rounded():
     week, _, _ = program2.calculate_take_home(8.31, 17.56, 10)
     assert week == pytest.approx(131.33124)
+
+
+def test_whole_dollar_figures_are_exact_rather_than_just_below():
+    # 15 * 40 = 600, less 28% is exactly 432. Turning 28% into the fraction
+    # 0.72 first gave 431.99999999999994, printed as $431 (issue #28).
+    assert program2.calculate_take_home(15, 40, 28) == (432.0, 1728.0, 20736.0)
 
 
 def test_before_taxes_is_the_wage_times_the_hours_over_the_same_periods():
@@ -233,6 +227,18 @@ def test_main_prompts_in_order_and_prints_the_three_figures(monkeypatch, capsys)
     assert "In a week, you will make $600 before taxes and $480 after taxes." in output
     assert "In a month, you will make $2400 before taxes and $1920 after taxes." in output
     assert "In a year, you will make $28800 before taxes and $23040 after taxes." in output
+
+
+def test_printed_whole_dollar_figures_are_not_one_dollar_short(monkeypatch, capsys):
+    # Issue #28: at 28% tax these figures used to print as $431, $1727 and $20735.
+    answers = iter(["15", "40", "28", ""])
+    monkeypatch.setattr("builtins.input", lambda prompt="": next(answers))
+    program2.main()
+
+    output = capsys.readouterr().out
+    assert "In a week, you will make $600 before taxes and $432 after taxes." in output
+    assert "In a month, you will make $2400 before taxes and $1728 after taxes." in output
+    assert "In a year, you will make $28800 before taxes and $20736 after taxes." in output
 
 
 def test_printed_figures_drop_the_cents(monkeypatch, capsys):

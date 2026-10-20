@@ -1,18 +1,16 @@
 import math
 
 
-def take_home_fraction(tax_percent):
-    """Return the fraction of a paycheck that is kept, given a tax percentage."""
-    return 1 - (tax_percent / 100)
-
-
 def calculate_take_home(hourly_wage, hours_per_week, tax_percent):
     """Return after-tax pay as (per week, per month, per year).
 
     A month is treated as four weeks and a year as twelve such months.
     """
-    hourly_wage_after_taxes = hourly_wage * take_home_fraction(tax_percent)
-    money_per_week = hourly_wage_after_taxes * hours_per_week
+    # The percentage is applied last, as a single division by 100, so that
+    # whole-number answers give exact figures. Turning it into a fraction
+    # first (1 - 0.28) is not exact in floating point, and $432 would print
+    # as $431 (issue #28).
+    money_per_week = hourly_wage * hours_per_week * (100 - tax_percent) / 100
     money_per_month = money_per_week * 4
     money_per_year = money_per_month * 12
     return money_per_week, money_per_month, money_per_year
