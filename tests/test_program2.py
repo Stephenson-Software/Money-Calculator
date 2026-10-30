@@ -60,6 +60,19 @@ def test_before_taxes_matches_take_home_at_zero_percent_tax():
     assert program2.calculate_before_taxes(20, 40) == pytest.approx(program2.calculate_take_home(20, 40, 0))
 
 
+def test_whole_dollars_drops_the_cents():
+    # Current behavior, disputed in issue #5: cents are dropped, not rounded.
+    assert program2.whole_dollars(145.9236) == 145
+    assert program2.whole_dollars(145.995) == 145
+
+
+def test_whole_dollars_is_not_one_dollar_short_after_floating_point_error():
+    # 8.04 * 25 is exactly 201, but in floating point it is 200.99999999999997
+    # (issue #32).
+    assert 8.04 * 25 < 201
+    assert program2.whole_dollars(8.04 * 25) == 201
+
+
 def feed_answers(monkeypatch, answers):
     """Make input() return the given answers in order, recording each prompt shown.
 
@@ -239,6 +252,18 @@ def test_printed_whole_dollar_figures_are_not_one_dollar_short(monkeypatch, caps
     assert "In a week, you will make $600 before taxes and $432 after taxes." in output
     assert "In a month, you will make $2400 before taxes and $1728 after taxes." in output
     assert "In a year, you will make $28800 before taxes and $20736 after taxes." in output
+
+
+def test_printed_whole_dollar_figures_from_a_wage_with_cents_are_not_one_dollar_short(monkeypatch, capsys):
+    # Issue #32: 8.04 * 25 = 201 exactly, but these used to print as $200, $803 and $9647.
+    answers = iter(["8.04", "25", "0", ""])
+    monkeypatch.setattr("builtins.input", lambda prompt="": next(answers))
+    program2.main()
+
+    output = capsys.readouterr().out
+    assert "In a week, you will make $201 before taxes and $201 after taxes." in output
+    assert "In a month, you will make $804 before taxes and $804 after taxes." in output
+    assert "In a year, you will make $9648 before taxes and $9648 after taxes." in output
 
 
 def test_printed_figures_drop_the_cents(monkeypatch, capsys):

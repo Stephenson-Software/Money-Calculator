@@ -24,6 +24,16 @@ def calculate_before_taxes(hourly_wage, hours_per_week):
     return calculate_take_home(hourly_wage, hours_per_week, 0)
 
 
+def whole_dollars(amount):
+    """Return the amount with its cents dropped.
+
+    The amount is first rounded to six decimal places, which removes the tiny
+    floating-point error left by a wage with cents. Without this, 8.04 * 25 is
+    200.99999999999997, and $201 would print as $200 (issue #32).
+    """
+    return math.floor(round(amount, 6))
+
+
 def ask_for_number(prompt, lowest=None, highest=None):
     """Keep asking until the answer is a number, optionally within the given bounds.
 
@@ -65,6 +75,9 @@ def ask_questions_and_print_figures():
     moneyperweek, moneypermonth, moneyperyear = calculate_take_home(
         hourlywage, workweek, taxestakenoutpercentnumber
     )
+
+    grossperweek, grosspermonth, grossperyear = map(whole_dollars, (grossperweek, grosspermonth, grossperyear))
+    moneyperweek, moneypermonth, moneyperyear = map(whole_dollars, (moneyperweek, moneypermonth, moneyperyear))
 
     print("")
     print("In a week, you will make $%d before taxes and $%d after taxes." % (grossperweek, moneyperweek))
