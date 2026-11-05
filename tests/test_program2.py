@@ -5,6 +5,8 @@ change to the arithmetic has to be deliberate. Where current behavior is
 disputed, the test names say so rather than the assertion being softened.
 """
 
+import math
+
 import pytest
 
 import program2
@@ -160,14 +162,36 @@ def test_main_reasks_all_three_questions_when_the_figures_are_too_large(monkeypa
     assert "In a week, you will make $600 before taxes and $480 after taxes." in output
 
 
-def test_main_reasks_when_only_the_yearly_figure_is_too_large(monkeypatch, capsys):
-    # 3e304 * 168 is still finite for a week, but 48 such weeks are not.
+def test_main_reasks_when_the_week_alone_would_fit_but_the_year_would_not(monkeypatch, capsys):
+    # 3e304 * 168 = 5.04e306 is below the largest float, but 48 such weeks are
+    # not, and neither is the 100 times that the percentage step goes through.
     feed_answers(monkeypatch, ["3e304", "168", "0", "15", "40", "20", ""])
     program2.main()
 
     output = capsys.readouterr().out
     assert "Those answers give figures too large to calculate." in output
     assert "In a year, you will make $28800 before taxes and $23040 after taxes." in output
+
+
+def test_main_reasks_when_only_the_percentage_step_is_too_large(monkeypatch, capsys):
+    # 5e304 * 40 = 2e306 and 48 such weeks are about 9.6e307, both below the
+    # largest float, but the pay is multiplied by 100 before it is divided by
+    # 100 (issue #28), and 2e308 is past it. These answers are refused even
+    # though the figures themselves would fit.
+    feed_answers(monkeypatch, ["5e304", "40", "0", "15", "40", "20", ""])
+    program2.main()
+
+    output = capsys.readouterr().out
+    assert "Those answers give figures too large to calculate." in output
+    assert "In a year, you will make $28800 before taxes and $23040 after taxes." in output
+
+
+def test_weekly_pay_overflows_once_a_hundred_times_it_is_too_large():
+    # The largest float is about 1.8e308, so the limit is a week of about
+    # 1.8e306. Its year is then only about 8.6e307, so the yearly figure is
+    # never the only one too large.
+    assert program2.calculate_before_taxes(1.7e306, 1) == pytest.approx((1.7e306, 6.8e306, 8.16e307))
+    assert program2.calculate_before_taxes(1.8e306, 1) == (math.inf, math.inf, math.inf)
 
 
 def test_main_exits_with_a_message_when_input_is_closed_at_a_prompt(monkeypatch, capsys):
