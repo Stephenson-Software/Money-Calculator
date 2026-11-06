@@ -63,6 +63,7 @@ Press Enter to exit the program.
 - The printed figures are truncated to whole dollars, so cents are dropped ([#5](https://github.com/Stephenson-Software/Money-Calculator/issues/5)).
 - A year is treated as 48 weeks ([#4](https://github.com/Stephenson-Software/Money-Calculator/issues/4)).
 - Figures of a few billion dollars or more can print a dollar or more away from the exact value, because they are calculated in floating point. For example, `529885.82`, `150` and `0` print a year of `$3815177903`, not `$3815177904` ([#34](https://github.com/Stephenson-Software/Money-Calculator/issues/34)).
+- A figure less than half a millionth of a dollar below a whole dollar prints as that whole dollar instead of having its cents dropped, because the rounding that removes floating-point error carries it up. This is rare, and it needs answers with several decimal places between them. For example, `43.56`, `60.44` and `42.38` give an exact week after taxes of `$1516.99999968`, which prints as `$1517`, not `$1516` ([#34](https://github.com/Stephenson-Software/Money-Calculator/issues/34)).
 
 ## Tests
 

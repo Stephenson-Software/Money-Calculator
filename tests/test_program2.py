@@ -290,6 +290,20 @@ def test_printed_whole_dollar_figures_from_a_wage_with_cents_are_not_one_dollar_
     assert "In a year, you will make $9648 before taxes and $9648 after taxes." in output
 
 
+def test_figure_just_below_a_whole_dollar_prints_one_dollar_high(monkeypatch, capsys):
+    # Current behavior, disputed in issue #34: 43.56 * 60.44 * 57.62 / 100 is
+    # exactly 1516.99999968, which the six-decimal round in whole_dollars
+    # carries up to 1517. The month, 6067.99999872, is further from a whole
+    # dollar and keeps its truncated figure, so it is not four printed weeks.
+    answers = iter(["43.56", "60.44", "42.38", ""])
+    monkeypatch.setattr("builtins.input", lambda prompt="": next(answers))
+    program2.main()
+
+    output = capsys.readouterr().out
+    assert "In a week, you will make $2632 before taxes and $1517 after taxes." in output
+    assert "In a month, you will make $10531 before taxes and $6067 after taxes." in output
+
+
 def test_printed_figures_drop_the_cents(monkeypatch, capsys):
     # Current behavior, disputed in issue #5: %d truncates rather than rounds.
     answers = iter(["8.31", "17.56", "10", ""])
