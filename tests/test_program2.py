@@ -6,6 +6,9 @@ disputed, the test names say so rather than the assertion being softened.
 """
 
 import math
+import pathlib
+import subprocess
+import sys
 
 import pytest
 
@@ -148,6 +151,42 @@ def test_main_reasks_on_bad_answers_and_still_prints_the_figures(monkeypatch, ca
     assert "In a week, you will make $600 before taxes and $480 after taxes." in output
 
 
+def test_main_reasks_on_a_negative_answer_at_every_prompt(monkeypatch, capsys):
+    prompts = feed_answers(monkeypatch, ["-15", "15", "-40", "40", "-20", "20", ""])
+    program2.main()
+
+    assert len(prompts) == 7
+    assert prompts[0] == prompts[1]
+    assert prompts[2] == prompts[3]
+    assert prompts[4] == prompts[5]
+
+    output = capsys.readouterr().out
+    assert output.count("That is too low. Please enter a number of at least 0.") == 3
+    assert "In a week, you will make $600 before taxes and $480 after taxes." in output
+
+
+def test_main_accepts_answers_at_the_lowest_limits(monkeypatch, capsys):
+    feed_answers(monkeypatch, ["0", "0", "0", ""])
+    program2.main()
+
+    output = capsys.readouterr().out
+    assert "That is too low." not in output
+    assert "In a week, you will make $0 before taxes and $0 after taxes." in output
+
+
+def test_main_accepts_answers_at_the_highest_limits(monkeypatch, capsys):
+    # 15 * 168 = 2520 a week, 2520 * 4 = 10080 a month, and 10080 * 12 = 120960
+    # a year, all of which a 100% tax takes out.
+    feed_answers(monkeypatch, ["15", "168", "100", ""])
+    program2.main()
+
+    output = capsys.readouterr().out
+    assert "That is too high." not in output
+    assert "In a week, you will make $2520 before taxes and $0 after taxes." in output
+    assert "In a month, you will make $10080 before taxes and $0 after taxes." in output
+    assert "In a year, you will make $120960 before taxes and $0 after taxes." in output
+
+
 def test_main_reasks_all_three_questions_when_the_figures_are_too_large(monkeypatch, capsys):
     # 1e307 * 40 = 4e308 is past the largest float, so the figures would be
     # infinite (issue #21).
@@ -243,6 +282,54 @@ def test_main_exits_with_a_message_when_interrupted_at_a_prompt(monkeypatch, cap
     assert exit_info.value.code == "The program was interrupted, so it is exiting."
     assert len(prompts) == 2
     assert "In a week, you will make" not in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("error", [EOFError, KeyboardInterrupt])
+def test_main_ends_the_prompt_line_before_exiting(monkeypatch, capsys, error):
+    # The exit message goes to standard error, so without this blank line it
+    # would appear on the same line as the unanswered prompt.
+    def fake_input(prompt=""):
+        raise error
+
+    monkeypatch.setattr("builtins.input", fake_input)
+
+    with pytest.raises(SystemExit):
+        program2.main()
+
+    assert capsys.readouterr().out == (
+        "You will be asked several questions regarding your financial situation.\n\n\n"
+    )
+
+
+def test_running_the_script_prints_the_exact_session():
+    # A run of the real file, so this also covers the __main__ guard. The
+    # answers are piped in, so they are not echoed between the prompts.
+    result = subprocess.run(
+        [sys.executable, "program2.py"],
+        input="15\n40\n20\n\n",
+        capture_output=True,
+        text=True,
+        cwd=pathlib.Path(program2.__file__).parent,
+    )
+
+    assert result.returncode == 0
+    assert result.stderr == ""
+    assert result.stdout == (
+        "You will be asked several questions regarding your financial situation.\n"
+        "\n"
+        "How much do you make per hour before taxes? (Format: 8.31, 14) $"
+        "How many hours do you work in a week? (Format: 17.56, 40) "
+        "How much percent of your paycheck is taken out for taxes? (Format: 10, 20, 30, etc) "
+        "\n"
+        "In a week, you will make $600 before taxes and $480 after taxes.\n"
+        "\n"
+        "In a month, you will make $2400 before taxes and $1920 after taxes.\n"
+        "\n"
+        "In a year, you will make $28800 before taxes and $23040 after taxes.\n"
+        "\n"
+        "\n"
+        "Press Enter to exit the program."
+    )
 
 
 def test_main_prompts_in_order_and_prints_the_three_figures(monkeypatch, capsys):
