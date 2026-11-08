@@ -116,6 +116,25 @@ def test_ask_for_number_treats_nan_and_inf_as_not_a_number(monkeypatch, capsys):
     assert capsys.readouterr().out.count("That is not a number.") == 3
 
 
+def test_ask_for_number_checks_an_answer_too_large_for_a_float_against_the_bounds(monkeypatch, capsys):
+    # float("1e309") is infinity, but the answer is written in digits, so it is
+    # refused as too high or too low rather than as not a number (issue #38).
+    feed_answers(monkeypatch, ["1e309", "-1e309", "40"])
+    assert program2.ask_for_number("hours? ", lowest=0, highest=168) == pytest.approx(40.0)
+    output = capsys.readouterr().out
+    assert "That is too high. Please enter a number of at most 168." in output
+    assert "That is too low. Please enter a number of at least 0." in output
+    assert "That is not a number." not in output
+
+
+def test_ask_for_number_refuses_an_answer_too_large_for_a_float_with_no_highest_bound(monkeypatch, capsys):
+    feed_answers(monkeypatch, ["1e309", "15"])
+    assert program2.ask_for_number("wage? ", lowest=0) == pytest.approx(15.0)
+    output = capsys.readouterr().out
+    assert output.count("That is too large to calculate. Please try again.") == 1
+    assert "That is not a number." not in output
+
+
 def test_ask_for_number_rejects_answers_below_the_lowest_bound(monkeypatch, capsys):
     feed_answers(monkeypatch, ["-15", "0"])
     assert program2.ask_for_number("wage? ", lowest=0) == pytest.approx(0.0)

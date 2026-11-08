@@ -41,16 +41,24 @@ def ask_for_number(prompt, lowest=None, highest=None):
     finite number, are rejected with a message and the prompt is shown again.
     """
     while True:
+        answer = input(prompt)
         try:
-            value = float(input(prompt))
+            value = float(answer)
         except ValueError:
             value = math.nan
-        if not math.isfinite(value):
+        # Words such as "nan" and "inf" are not numbers. An answer written in
+        # digits that is too large for a float, such as 1e309, also becomes
+        # infinity, but it is a number, so it is checked against the bounds
+        # like any other (issue #38).
+        written_in_digits = any(character.isdigit() for character in answer)
+        if math.isnan(value) or (math.isinf(value) and not written_in_digits):
             print("That is not a number. Please try again.")
         elif lowest is not None and value < lowest:
             print("That is too low. Please enter a number of at least %g." % lowest)
         elif highest is not None and value > highest:
             print("That is too high. Please enter a number of at most %g." % highest)
+        elif math.isinf(value):
+            print("That is too large to calculate. Please try again.")
         else:
             return value
 
