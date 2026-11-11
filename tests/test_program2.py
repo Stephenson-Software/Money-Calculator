@@ -410,6 +410,23 @@ def test_figure_just_below_a_whole_dollar_prints_one_dollar_high(monkeypatch, ca
     assert "In a month, you will make $10531 before taxes and $6067 after taxes." in output
 
 
+def test_figure_of_a_few_billion_dollars_prints_one_dollar_short(monkeypatch, capsys):
+    # Current behavior, disputed in issue #34: 529885.82 * 150 is exactly
+    # 79482873, so a year of 48 weeks is exactly 3815177904. In floating point
+    # the year is 3815177903.999999, which is too far below a whole dollar
+    # for the six-decimal round in whole_dollars to carry up, so it prints as
+    # $3815177903. The week and the month are also just below, but close
+    # enough to be carried up, so they print exactly.
+    answers = iter(["529885.82", "150", "0", ""])
+    monkeypatch.setattr("builtins.input", lambda prompt="": next(answers))
+    program2.main()
+
+    output = capsys.readouterr().out
+    assert "In a week, you will make $79482873 before taxes and $79482873 after taxes." in output
+    assert "In a month, you will make $317931492 before taxes and $317931492 after taxes." in output
+    assert "In a year, you will make $3815177903 before taxes and $3815177903 after taxes." in output
+
+
 def test_printed_figures_drop_the_cents(monkeypatch, capsys):
     # Current behavior, disputed in issue #5: %d truncates rather than rounds.
     answers = iter(["8.31", "17.56", "10", ""])
