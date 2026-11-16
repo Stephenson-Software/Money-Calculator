@@ -110,6 +110,24 @@ def test_ask_for_number_reprompts_until_the_answer_is_numeric(monkeypatch, capsy
     assert capsys.readouterr().out.count("That is not a number. Please try again.") == 4
 
 
+def test_ask_for_number_ignores_spaces_around_the_answer(monkeypatch, capsys):
+    feed_answers(monkeypatch, ["  15  "])
+    assert program2.ask_for_number("wage? ") == pytest.approx(15.0)
+    assert "That is not a number." not in capsys.readouterr().out
+
+
+def test_ask_for_number_accepts_scientific_notation(monkeypatch):
+    feed_answers(monkeypatch, ["2e1"])
+    assert program2.ask_for_number("tax? ", lowest=0, highest=100) == pytest.approx(20.0)
+
+
+def test_ask_for_number_refuses_a_comma_thousands_separator_as_not_a_number(monkeypatch, capsys):
+    prompts = feed_answers(monkeypatch, ["1,000", "1000"])
+    assert program2.ask_for_number("wage? ", lowest=0) == pytest.approx(1000.0)
+    assert prompts == ["wage? "] * 2
+    assert capsys.readouterr().out.count("That is not a number. Please try again.") == 1
+
+
 def test_ask_for_number_treats_nan_and_inf_as_not_a_number(monkeypatch, capsys):
     feed_answers(monkeypatch, ["nan", "inf", "-inf", "1"])
     assert program2.ask_for_number("hours? ", lowest=0) == pytest.approx(1.0)
