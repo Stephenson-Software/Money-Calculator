@@ -18,7 +18,7 @@ python3 program2.py
 
 ## Prompts
 
-Three values are asked for, in this order. Each is entered as a bare number.
+Three values are asked for, in this order. Each is entered as a bare number. Spaces around the number are ignored, and scientific notation is accepted (`2e1` is read as `20`), but a comma used as a thousands separator is not (enter `1000`, not `1,000`).
 
 | Order | Prompt | Example answer | Meaning |
 |-------|--------|----------------|---------|
