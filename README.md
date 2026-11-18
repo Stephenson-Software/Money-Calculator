@@ -18,7 +18,7 @@ python3 program2.py
 
 ## Prompts
 
-Three values are asked for, in this order. Each is entered as a bare number. Spaces around the number are ignored, and scientific notation is accepted (`2e1` is read as `20`), but a comma used as a thousands separator is not (enter `1000`, not `1,000`). A single underscore between digits is accepted and ignored (`1_000` is read as `1000`).
+Three values are asked for, in this order. Each is entered as a bare number. Spaces around the number are ignored, and scientific notation is accepted (`2e1` is read as `20`), but a comma used as a thousands separator is not (enter `1000`, not `1,000`). An underscore between two digits is accepted and ignored (`1_000` is read as `1000`, and `1_000_000` as `1000000`), but two underscores in a row, or one at the start or end, are not.
 
 | Order | Prompt | Example answer | Meaning |
 |-------|--------|----------------|---------|
