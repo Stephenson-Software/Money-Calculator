@@ -128,6 +128,15 @@ def test_ask_for_number_refuses_a_comma_thousands_separator_as_not_a_number(monk
     assert capsys.readouterr().out.count("That is not a number. Please try again.") == 1
 
 
+def test_ask_for_number_accepts_an_underscore_between_digits(monkeypatch, capsys):
+    # float() allows an underscore between two digits, so "1_000_000" is read
+    # as 1000000. A doubled, leading or trailing underscore is not allowed.
+    prompts = feed_answers(monkeypatch, ["1__000", "_1000", "1000_", "1_000_000"])
+    assert program2.ask_for_number("wage? ", lowest=0) == pytest.approx(1000000.0)
+    assert prompts == ["wage? "] * 4
+    assert capsys.readouterr().out.count("That is not a number. Please try again.") == 3
+
+
 def test_ask_for_number_treats_nan_and_inf_as_not_a_number(monkeypatch, capsys):
     feed_answers(monkeypatch, ["nan", "inf", "-inf", "1"])
     assert program2.ask_for_number("hours? ", lowest=0) == pytest.approx(1.0)
