@@ -378,6 +378,44 @@ def test_running_the_script_prints_the_exact_session():
     )
 
 
+def test_running_the_script_with_figures_too_large_prints_the_exact_session():
+    # 1e307 * 40 is past the largest float (issue #21), so the message is
+    # printed, followed by a blank line, and all three questions are asked
+    # again before the figures for the second set of answers are printed.
+    result = subprocess.run(
+        [sys.executable, "program2.py"],
+        input="1e307\n40\n20\n15\n40\n20\n\n",
+        capture_output=True,
+        text=True,
+        cwd=pathlib.Path(program2.__file__).parent,
+    )
+
+    questions = (
+        "How much do you make per hour before taxes? (Format: 8.31, 14) $"
+        "How many hours do you work in a week? (Format: 17.56, 40) "
+        "How much percent of your paycheck is taken out for taxes? (Format: 10, 20, 30, etc) "
+    )
+    assert result.returncode == 0
+    assert result.stderr == ""
+    assert result.stdout == (
+        "You will be asked several questions regarding your financial situation.\n"
+        "\n"
+        + questions
+        + "Those answers give figures too large to calculate. Please try again.\n"
+        "\n"
+        + questions
+        + "\n"
+        "In a week, you will make $600 before taxes and $480 after taxes.\n"
+        "\n"
+        "In a month, you will make $2400 before taxes and $1920 after taxes.\n"
+        "\n"
+        "In a year, you will make $28800 before taxes and $23040 after taxes.\n"
+        "\n"
+        "\n"
+        "Press Enter to exit the program."
+    )
+
+
 def test_main_prompts_in_order_and_prints_the_three_figures(monkeypatch, capsys):
     answers = iter(["15", "40", "20", ""])
     prompts = []
